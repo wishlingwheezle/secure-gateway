@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>S_Y_S_T_E_M__A_D_M_I_N</title>
+    <style>
+        body { background: #0a0a0a; color: #39ff14; font-family: 'Courier New', Courier, monospace; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; overflow-x: hidden; }
+        .box { border: 1px solid #1a1a1a; padding: 30px; background: #000; box-shadow: 0 0 30px #050505; text-align: center; width: 450px; z-index: 10; }
+        input { width: 90%; padding: 12px; background: #111; border: 1px solid #333; color: #00ffff; margin: 15px 0; outline: none; font-size: 0.8rem; }
+        input:focus { border-color: #39ff14; }
+        button { padding: 12px 25px; background: #39ff14; color: #000; border: none; cursor: pointer; font-weight: bold; width: 100%; transition: 0.3s; }
+        button:hover { background: #ff0033; color: #fff; }
+        #output { margin-top: 25px; color: #ff3e3e; font-size: 11px; text-align: left; word-break: break-all; border-top: 1px solid #222; padding-top: 15px; }
+        .hidden { display: none; }
+        #terminal { width: 80%; max-width: 600px; text-align: left; font-size: 14px; line-height: 1.5; }
+        .blink { animation: blinker 1s linear infinite; }
+        @keyframes blinker { 50% { opacity: 0; } }
+    </style>
+</head>
+<body>
+
+<div class="box" id="main-ui">
+    <h2 style="letter-spacing: 3px; color: #fff;">GATEWAY_v7.1_BYPASS</h2>
+    <p style="font-size: 0.7rem; color: #666;">ENCRYPTED PACKET GENERATOR // NO LOGS KEPT</p>
+    <input type="text" id="target" placeholder="Enter target URL (e.g., https://youtube.com)">
+    <button onclick="generate()">INITIALIZE OBFUSCATION</button>
+    <div id="output"></div>
+</div>
+
+<div id="redirecting" class="hidden">
+    <div id="terminal"></div>
+</div>
+
+<script>
+    const RED_FLAGS = [
+        "root-access-0x80042", "unsecured-local-node", "ssl-bypass-verify", "internal-db-dump",
+        "private-key-leak", "admin-portal-v3", "temp-patch-99", "tracker-pixel-id82",
+        "remote-execute-cmd", "shadow-log-rec", "untrusted-gateway-bypass", "pixel-ping-v2",
+        "expired-cert-handler", "backdoor-entry-point", "system-critical-overflow"
+    ];
+
+    const SUBDOMAINS = ["dev-internal", "127.0.0.1.proxy", "root-level", "debug-mode", "secure-vault"];
+
+    window.onload = function() {
+        if (window.location.hash) {
+            document.getElementById('main-ui').classList.add('hidden');
+            document.getElementById('redirecting').classList.remove('hidden');
+            
+            const logs = [
+                "> CONNECTION ESTABLISHED TO 10.0.0.154...",
+                "> BYPASSING SSL_HANDSHAKE_ERROR...",
+                "> WARNING: UNTRUSTED CERTIFICATE DETECTED",
+                "> INJECTING REMOTE_EXECUTE_COMMAND...",
+                "> DUMPING SESSION_ID TO SHADOW_LOG...",
+                "> ACCESS GRANTED: REDIRECTING TO TARGET NODE..."
+            ];
+
+            let i = 0;
+            const term = document.getElementById('terminal');
+            const interval = setInterval(() => {
+                if (i < logs.length) {
+                    term.innerHTML += `<p>${logs[i]}</p>`;
+                    i++;
+                } else {
+                    clearInterval(interval);
+                    term.innerHTML += `<p class="blink" style="color:red">RUNNING_EXPLOIT_v4.exe...</p>`;
+                    
+                    setTimeout(() => {
+                        try {
+                            const encoded = window.location.hash.substring(1);
+                            const decoded = atob(encoded);
+                            window.location.href = decoded;
+                        } catch(e) {
+                            term.innerHTML = "CRITICAL_ENCODING_ERROR_0x0001";
+                        }
+                    }, 1500);
+                }
+            }, 600);
+        }
+    };
+
+    function generate() {
+        let url = document.getElementById('target').value;
+        if (!url) return;
+        if (!url.startsWith('http')) url = 'https://' + url;
+
+        const encodedUrl = btoa(url);
+        
+        // Pick random red flags
+        const flag1 = RED_FLAGS[Math.floor(Math.random() * RED_FLAGS.length)];
+        const flag2 = RED_FLAGS[Math.floor(Math.random() * RED_FLAGS.length)];
+        const sub = SUBDOMAINS[Math.floor(Math.random() * SUBDOMAINS.length)];
+        const randomHex = Math.random().toString(16).substring(2, 10);
+        
+        const currentUrl = window.location.href.split('#')[0].split('?')[0];
+        
+        // The Final Sketchy String
+        const finalLink = `${currentUrl}?host=${sub}&node=${flag1}&auth=0x${randomHex}&status=${flag2}&priority=critical#${encodedUrl}`;
+
+        document.getElementById('output').innerHTML = `
+            <strong style="color:#39ff14">ENCRYPTED LINK GENERATED:</strong><br><br>
+            ${finalLink}
+        `;
+    }
+</script>
+
+</body>
+</html>
