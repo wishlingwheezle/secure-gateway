@@ -5,103 +5,143 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>S_Y_S_T_E_M__A_D_M_I_N</title>
     <style>
-        body { background: #0a0a0a; color: #39ff14; font-family: 'Courier New', Courier, monospace; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; overflow-x: hidden; }
-        .box { border: 1px solid #1a1a1a; padding: 30px; background: #000; box-shadow: 0 0 30px #050505; text-align: center; width: 450px; z-index: 10; }
-        input { width: 90%; padding: 12px; background: #111; border: 1px solid #333; color: #00ffff; margin: 15px 0; outline: none; font-size: 0.8rem; }
-        input:focus { border-color: #39ff14; }
-        button { padding: 12px 25px; background: #39ff14; color: #000; border: none; cursor: pointer; font-weight: bold; width: 100%; transition: 0.3s; }
-        button:hover { background: #ff0033; color: #fff; }
-        #output { margin-top: 25px; color: #ff3e3e; font-size: 11px; text-align: left; word-break: break-all; border-top: 1px solid #222; padding-top: 15px; }
+        :root { --neon: #39ff14; --danger: #ff0033; --bg: #050505; }
+        body { background: var(--bg); color: var(--neon); font-family: 'Courier New', Courier, monospace; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; overflow: hidden; }
+        
+        /* UI Container */
+        .container { border: 1px solid #1a1a1a; padding: 40px; background: #000; box-shadow: 0 0 40px #000; text-align: center; width: 100%; max-width: 500px; z-index: 10; position: relative; }
+        h2 { letter-spacing: 4px; color: #fff; margin-bottom: 5px; text-transform: uppercase; }
+        .sub-text { font-size: 0.7rem; color: #444; margin-bottom: 25px; border-bottom: 1px solid #111; padding-bottom: 10px; }
+        
+        /* Inputs */
+        input { width: 100%; padding: 12px; background: #0a0a0a; border: 1px solid #222; color: #00ffff; margin-bottom: 20px; box-sizing: border-box; outline: none; transition: 0.3s; }
+        input:focus { border-color: var(--neon); box-shadow: 0 0 10px #003300; }
+        
+        /* Buttons */
+        button { padding: 15px; background: var(--neon); color: #000; border: none; cursor: pointer; font-weight: bold; width: 100%; text-transform: uppercase; letter-spacing: 2px; }
+        button:hover { background: #fff; box-shadow: 0 0 20px var(--neon); }
+
+        /* Output Area */
+        #output { margin-top: 30px; text-align: left; font-size: 11px; word-break: break-all; display: none; }
+        .link-box { background: #111; border: 1px dashed var(--danger); padding: 15px; color: var(--danger); margin-top: 10px; cursor: pointer; }
+
+        /* Fake Terminal & Captcha */
         .hidden { display: none; }
-        #terminal { width: 80%; max-width: 600px; text-align: left; font-size: 14px; line-height: 1.5; }
+        #terminal { text-align: left; font-size: 13px; width: 90%; max-width: 600px; line-height: 1.6; }
+        .captcha-box { border: 1px solid #333; padding: 20px; background: #111; display: inline-block; cursor: pointer; transition: 0.2s; }
+        .captcha-box:hover { border-color: var(--neon); }
+        .log-line { margin: 5px 0; }
         .blink { animation: blinker 1s linear infinite; }
         @keyframes blinker { 50% { opacity: 0; } }
     </style>
 </head>
 <body>
 
-<div class="box" id="main-ui">
-    <h2 style="letter-spacing: 3px; color: #fff;">GATEWAY_v7.1_BYPASS</h2>
-    <p style="font-size: 0.7rem; color: #666;">ENCRYPTED PACKET GENERATOR // NO LOGS KEPT</p>
-    <input type="text" id="target" placeholder="Enter target URL (e.g., https://youtube.com)">
-    <button onclick="generate()">INITIALIZE OBFUSCATION</button>
-    <div id="output"></div>
+<div class="container" id="generator-ui">
+    <h2>Mask_Link_v9</h2>
+    <div class="sub-text">ENCRYPTED REDIRECT GENERATOR // BYPASS_SSL_ENABLED</div>
+    
+    <input type="text" id="targetUrl" placeholder="Paste Destination (e.g. youtube.com/watch?v=...)">
+    <button onclick="generateLink()">Generate Masked URL</button>
+
+    <div id="output">
+        <span style="color: #666;">ENCRYPTED PACKET READY:</span>
+        <div class="link-box" id="finalLink" onclick="copyLink()"></div>
+        <p style="font-size: 9px; color: #444; margin-top: 10px;">Click the red link to copy to clipboard.</p>
+    </div>
 </div>
 
-<div id="redirecting" class="hidden">
-    <div id="terminal"></div>
+<div id="victim-ui" class="hidden">
+    <div id="captcha-stage" class="container">
+        <h2 style="font-size: 1.2rem;">Security Verification</h2>
+        <p style="color: #888; font-size: 0.8rem;">To access the requested resource, please verify you are not a bot.</p>
+        <div class="captcha-box" onclick="startTerminal()">
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <div style="width: 25px; height: 25px; border: 2px solid #555; background: #000;"></div>
+                <span style="color: #fff; font-family: sans-serif;">I am not a robot</span>
+                <img src="https://www.gstatic.com/recaptcha/api2/logo_48.png" width="30" style="margin-left: auto; opacity: 0.5;">
+            </div>
+        </div>
+    </div>
+
+    <div id="terminal" class="hidden"></div>
 </div>
 
 <script>
-    const RED_FLAGS = [
-        "root-access-0x80042", "unsecured-local-node", "ssl-bypass-verify", "internal-db-dump",
-        "private-key-leak", "admin-portal-v3", "temp-patch-99", "tracker-pixel-id82",
-        "remote-execute-cmd", "shadow-log-rec", "untrusted-gateway-bypass", "pixel-ping-v2",
-        "expired-cert-handler", "backdoor-entry-point", "system-critical-overflow"
-    ];
+    // --- GENERATOR LOGIC ---
+    function generateLink() {
+        let target = document.getElementById('targetUrl').value;
+        if (!target) return;
+        if (!target.startsWith('http')) target = 'https://' + target;
 
-    const SUBDOMAINS = ["dev-internal", "127.0.0.1.proxy", "root-level", "debug-mode", "secure-vault"];
+        const encoded = btoa(target); // Base64 Mask
+        const randomID = Math.random().toString(36).substring(2, 9);
+        const prefixes = ["verify", "auth-portal", "secure-gateway", "id-check"];
+        const suffixes = ["celebrity_quiz", "hidden_access", "tmp_log", "unsecured_node"];
+        
+        const prefix = prefixes[Math.floor(Math.random() * prefixes.length)];
+        const suffix = suffixes[Math.floor(Math.random() * suffixes.length)];
 
+        // Clean base URL
+        const baseUrl = window.location.href.split('#')[0].split('?')[0];
+        
+        // Constructing the "Phishing Style" URL
+        // Example: https://yoursite.com/verify/_hidden_a1b2c3d_celebrity_quiz#W21hc2tlZF91cmxd
+        const finalUrl = `${baseUrl}?_mode=${prefix}&session=${randomID}&path=/_${suffix}#${encoded}`;
+
+        document.getElementById('output').style.display = 'block';
+        document.getElementById('finalLink').innerText = finalUrl;
+    }
+
+    function copyLink() {
+        const text = document.getElementById('finalLink').innerText;
+        navigator.clipboard.writeText(text);
+        alert("Sketchy link copied!");
+    }
+
+    // --- VICTIM / REDIRECT LOGIC ---
     window.onload = function() {
         if (window.location.hash) {
-            document.getElementById('main-ui').classList.add('hidden');
-            document.getElementById('redirecting').classList.remove('hidden');
-            
-            const logs = [
-                "> CONNECTION ESTABLISHED TO 10.0.0.154...",
-                "> BYPASSING SSL_HANDSHAKE_ERROR...",
-                "> WARNING: UNTRUSTED CERTIFICATE DETECTED",
-                "> INJECTING REMOTE_EXECUTE_COMMAND...",
-                "> DUMPING SESSION_ID TO SHADOW_LOG...",
-                "> ACCESS GRANTED: REDIRECTING TO TARGET NODE..."
-            ];
-
-            let i = 0;
-            const term = document.getElementById('terminal');
-            const interval = setInterval(() => {
-                if (i < logs.length) {
-                    term.innerHTML += `<p>${logs[i]}</p>`;
-                    i++;
-                } else {
-                    clearInterval(interval);
-                    term.innerHTML += `<p class="blink" style="color:red">RUNNING_EXPLOIT_v4.exe...</p>`;
-                    
-                    setTimeout(() => {
-                        try {
-                            const encoded = window.location.hash.substring(1);
-                            const decoded = atob(encoded);
-                            window.location.href = decoded;
-                        } catch(e) {
-                            term.innerHTML = "CRITICAL_ENCODING_ERROR_0x0001";
-                        }
-                    }, 1500);
-                }
-            }, 600);
+            document.getElementById('generator-ui').classList.add('hidden');
+            document.getElementById('victim-ui').classList.remove('hidden');
         }
     };
 
-    function generate() {
-        let url = document.getElementById('target').value;
-        if (!url) return;
-        if (!url.startsWith('http')) url = 'https://' + url;
+    function startTerminal() {
+        document.getElementById('captcha-stage').classList.add('hidden');
+        const term = document.getElementById('terminal');
+        term.classList.remove('hidden');
 
-        const encodedUrl = btoa(url);
-        
-        // Pick random red flags
-        const flag1 = RED_FLAGS[Math.floor(Math.random() * RED_FLAGS.length)];
-        const flag2 = RED_FLAGS[Math.floor(Math.random() * RED_FLAGS.length)];
-        const sub = SUBDOMAINS[Math.floor(Math.random() * SUBDOMAINS.length)];
-        const randomHex = Math.random().toString(16).substring(2, 10);
-        
-        const currentUrl = window.location.href.split('#')[0].split('?')[0];
-        
-        // The Final Sketchy String
-        const finalLink = `${currentUrl}?host=${sub}&node=${flag1}&auth=0x${randomHex}&status=${flag2}&priority=critical#${encodedUrl}`;
+        const logs = [
+            "> INITIALIZING HANDSHAKE WITH REMOTE NODE...",
+            "> WARNING: SSL_CERTIFICATE_EXPIRED",
+            "> BYPASSING GATEWAY FIREWALL...",
+            "> INJECTING AUTH_TOKEN_0x882A...",
+            "> CONNECTION ENCRYPTED VIA SHADOW_PROXY",
+            "> DUMPING SESSION DATA TO /tmp/system.log",
+            "> REDIRECTING TO TARGET PACKET..."
+        ];
 
-        document.getElementById('output').innerHTML = `
-            <strong style="color:#39ff14">ENCRYPTED LINK GENERATED:</strong><br><br>
-            ${finalLink}
-        `;
+        let i = 0;
+        const interval = setInterval(() => {
+            if (i < logs.length) {
+                const p = document.createElement('p');
+                p.className = 'log-line';
+                p.innerText = logs[i];
+                term.appendChild(p);
+                i++;
+            } else {
+                clearInterval(interval);
+                const p = document.createElement('p');
+                p.innerHTML = '<span class="blink" style="color:red">CRITICAL_OVERRIDE_SUCCESS</span>';
+                term.appendChild(p);
+
+                setTimeout(() => {
+                    const decoded = atob(window.location.hash.substring(1));
+                    window.location.href = decoded;
+                }, 1200);
+            }
+        }, 500);
     }
 </script>
 
